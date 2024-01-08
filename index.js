@@ -14,40 +14,47 @@ app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 2
 app.use(express.static("public"));
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/views/index.html");
+app.get("/", function(req, res) {
+    res.sendFile(__dirname + "/views/index.html");
 });
 
 // your first API endpoint...
 // this is terrible code i just want my certs
-app.get("/api/:date?", function (req, res) {
-  const { date } = req.params;
+app.get("/api/:date?", function(req, res) {
+    const { date } = req.params;
 
-  if (!date) {
-    const now = Date.now();
+    if (!date) {
+        const now = Date.now();
+
+        res.json({
+            unix: now,
+            utc: new Date(now).toUTCString(),
+        });
+        return;
+    }
+
+    let dateObj = undefined;
+
+    if (!isNaN(parseInt(date))) {
+        dateObj = new Date(parseInt(date))
+    } else {
+        dateObj = new Date(date)
+    }
+
+    if (dateObj.toString() === "Invalid Date") {
+        res.json({
+            error: "Invalid Date",
+        });
+        return;
+    }
 
     res.json({
-      unix: now,
-      utc: new Date(now).toUTCString(),
+        unix: dateObj.getTime(),
+        utc: dateObj.toUTCString(),
     });
-    return;
-  }
-
-  const dateObj = new Date(parseInt(date));
-  if (dateObj.toString() === "Invalid Date") {
-    res.json({
-      error: "Invalid Date",
-    });
-    return;
-  }
-
-  res.json({
-    unix: dateObj.getTime(),
-    utc: dateObj.toUTCString(),
-  });
 });
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
-  console.log("Your app is listening on port " + listener.address().port);
+var listener = app.listen(process.env.PORT, function() {
+    console.log("Your app is listening on port " + listener.address().port);
 });
