@@ -35,10 +35,10 @@ app.get("/api/:date?", function(req, res) {
 
     let dateObj = undefined;
 
-    if (!isNaN(parseInt(date))) {
-        dateObj = new Date(parseInt(date))
-    } else {
+    if (isNaN(date)) {
         dateObj = new Date(date)
+    } else {
+        dateObj = new Date(parseInt(date))
     }
 
     if (dateObj.toString() === "Invalid Date") {
